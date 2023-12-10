@@ -8,6 +8,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import data from "./data";
 import { useRef } from "react";
@@ -33,6 +34,43 @@ const LOGO_HEIGHT = 40;
 const DOT_SIZE = 40;
 const TICKER_HEIGHT = 40;
 const CIRCLE_SIZE = width * 0.6;
+
+const Pagination = () => {
+  return (
+    <View style={styles.pagination}>
+      {data.map((item) => {
+        return (
+          <View key={item.key} style={styles.paginationDotContainer}>
+            <View
+              style={[styles.paginationDot, { backgroundColor: item.color }]}
+            />
+          </View>
+        );
+      })}
+    </View>
+  );
+};
+
+const Ticker = ({ scrollX }: { scrollX: Animated.Value }) => {
+  const inputRange = [-width, 0, width];
+  const translateY = scrollX.interpolate({
+    inputRange,
+    outputRange: [TICKER_HEIGHT, 0, -TICKER_HEIGHT],
+  });
+  return (
+    <View style={styles.tickerContainer}>
+      <Animated.View style={{ transform: [{ translateY }] }}>
+        {data.map(({ type }, index) => {
+          return (
+            <Text key={index} style={styles.tickerText}>
+              {type}
+            </Text>
+          );
+        })}
+      </Animated.View>
+    </View>
+  );
+};
 
 const Item = ({
   imageUri,
@@ -96,51 +134,31 @@ const Item = ({
   );
 };
 
-const Pagination = () => {
-  return (
-    <View style={styles.pagination}>
-      {data.map((item) => {
-        return (
-          <View key={item.key} style={styles.paginationDotContainer}>
-            <View
-              style={[styles.paginationDot, { backgroundColor: item.color }]}
-            />
-          </View>
-        );
-      })}
-    </View>
-  );
-};
-
-const Ticker = ({ scrollX }: { scrollX: Animated.Value }) => {
-  const inputRange = [-width, 0, width];
-  const translateY = scrollX.interpolate({
-    inputRange,
-    outputRange: [TICKER_HEIGHT, 0, -TICKER_HEIGHT],
-  });
-  return (
-    <View style={styles.tickerContainer}>
-      <Animated.View style={{ transform: [{ translateY }] }}>
-        {data.map(({ type }, index) => {
-          return (
-            <Text key={index} style={styles.tickerText}>
-              {type}
-            </Text>
-          );
-        })}
-      </Animated.View>
-    </View>
-  );
-};
-
 const BakcgroundCircle = ({ scrollX }: { scrollX: Animated.Value }) => {
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.circleContainer]}>
       {data.map(({ color }, index) => {
+        const inputRange = [
+          (index - 0.5) * width,
+          index * width,
+          (index + 0.5) * width,
+        ];
+        const scale = scrollX.interpolate({
+          inputRange,
+          outputRange: [0, 1, 0],
+          extrapolate: "clamp",
+        });
+        const opacity = scrollX.interpolate({
+          inputRange,
+          outputRange: [0, 0.3, 0],
+        });
         return (
-          <View
+          <Animated.View
             key={index}
-            style={[styles.circle, { backgroundColor: color }]}
+            style={[
+              styles.circle,
+              { backgroundColor: color, transform: [{ scale }], opacity },
+            ]}
           />
         );
       })}
@@ -158,7 +176,7 @@ export default function App() {
       <TouchableOpacity style={styles.btnIcon}>
         <Ionicons name="settings-outline" size={30} color={"#000"} />
       </TouchableOpacity>
-      {/* <BakcgroundCircle scrollX={scrollX} /> */}
+      <BakcgroundCircle scrollX={scrollX} />
       <Animated.FlatList
         keyExtractor={(data) => data.key}
         data={data}
@@ -224,7 +242,7 @@ const styles = StyleSheet.create({
   pagination: {
     position: "absolute",
     right: 20,
-    bottom: 60,
+    bottom: 40,
     flexDirection: "row",
     height: DOT_SIZE,
   },
@@ -286,5 +304,6 @@ const styles = StyleSheet.create({
     borderRadius: CIRCLE_SIZE / 2,
     position: "absolute",
     alignSelf: "center",
+    top: Platform.OS === "ios" ? "25%" : "15%",
   },
 });
