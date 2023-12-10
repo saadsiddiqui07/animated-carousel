@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
     height: DOT_SIZE,
   },
   paginationDot: {
-    width: DOT_SIZE * 0.3,
-    height: DOT_SIZE * 0.3,
-    borderRadius: DOT_SIZE * 0.15,
+    width: DOT_SIZE * 0.4,
+    height: DOT_SIZE * 0.4,
+    borderRadius: DOT_SIZE * 0.2,
   },
   paginationDotContainer: {
     width: DOT_SIZE,
