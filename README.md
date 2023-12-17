@@ -1,5 +1,7 @@
 # animated-carousel
-An animated Carousel built with React Native Animated API and Expo
+An animated Carousel built with react-native-reanimated and Expo
+
+### Note: Migrated from React Native Animated API ro react-native-reanimated
 
 ## 1. iOS Example
 ![carousel-ios](https://github.com/saadsiddiqui07/animated-carousel/assets/53810119/76d24670-55f0-4d16-918c-23f94d7aeddf)
