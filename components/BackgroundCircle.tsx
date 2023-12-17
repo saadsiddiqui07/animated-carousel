@@ -1,9 +1,15 @@
-import { Animated, Platform, StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import data from "../data";
 import { CIRCLE_SIZE, width } from "../contants";
+import Animated, {
+  Extrapolation,
+  SharedValue,
+  interpolate,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
-const BackgroundCircle = ({ scrollX }: { scrollX: Animated.Value }) => {
+const BackgroundCircle = ({ scrollX }: { scrollX: SharedValue<number> }) => {
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.circleContainer]}>
       {data.map(({ color }, index) => {
@@ -12,21 +18,30 @@ const BackgroundCircle = ({ scrollX }: { scrollX: Animated.Value }) => {
           index * width,
           (index + 0.5) * width,
         ];
-        const scale = scrollX.interpolate({
-          inputRange,
-          outputRange: [0, 1, 0],
-          extrapolate: "clamp",
+
+        const animatedCircleStyle = useAnimatedStyle(() => {
+          return {
+            transform: [
+              {
+                scale: interpolate(
+                  scrollX.value,
+                  inputRange,
+                  [0, 1, 0],
+                  Extrapolation.CLAMP
+                ),
+              },
+            ],
+            opacity: interpolate(scrollX.value, inputRange, [0, 0.3, 0]),
+          };
         });
-        const opacity = scrollX.interpolate({
-          inputRange,
-          outputRange: [0, 0.3, 0],
-        });
+
         return (
           <Animated.View
             key={index}
             style={[
               styles.circle,
-              { backgroundColor: color, transform: [{ scale }], opacity },
+              { backgroundColor: color },
+              animatedCircleStyle,
             ]}
           />
         );

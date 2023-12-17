@@ -1,16 +1,32 @@
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { TICKER_HEIGHT, width } from "../contants";
 import data from "../data";
+import Animated, {
+  SharedValue,
+  interpolate,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
-const Ticker = ({ scrollX }: { scrollX: Animated.Value }) => {
+const Ticker = ({ scrollX }: { scrollX: SharedValue<number> }) => {
   const inputRange = [-width, 0, width];
-  const translateY = scrollX.interpolate({
-    inputRange,
-    outputRange: [TICKER_HEIGHT, 0, -TICKER_HEIGHT],
+
+  const animatedViewStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(scrollX.value, inputRange, [
+            TICKER_HEIGHT,
+            0,
+            -TICKER_HEIGHT,
+          ]),
+        },
+      ],
+    };
   });
+
   return (
     <View style={styles.tickerContainer}>
-      <Animated.View style={{ transform: [{ translateY }] }}>
+      <Animated.View style={[animatedViewStyle]}>
         {data.map(({ type }, index) => {
           return (
             <Text key={index} style={styles.tickerText}>
