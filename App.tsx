@@ -2,29 +2,21 @@ import { StatusBar } from "expo-status-bar";
 import {
   SafeAreaView,
   StyleSheet,
-  View,
-  Animated,
-  Text,
   Image,
   TouchableOpacity,
-  Platform,
 } from "react-native";
 import data from "./data";
 import { useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  CIRCLE_SIZE,
-  DOT_SIZE,
-  LOGO_HEIGHT,
-  LOGO_WIDTH,
-  TICKER_HEIGHT,
-  height,
-  width,
-} from "./contants";
+import { LOGO_HEIGHT, LOGO_WIDTH } from "./contants";
 import BackgroundCircle from "./components/BackgroundCircle";
 import Item from "./components/Item";
 import Ticker from "./components/Ticker";
 import Pagination from "./components/Pagination";
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from "react-native-reanimated";
 
 interface Props {
   type: string;
@@ -41,7 +33,11 @@ interface ItemProps extends Props {
 }
 
 export default function App() {
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = useSharedValue(0);
+
+  const scrollXHandler = useAnimatedScrollHandler((event) => {
+    scrollX.value = event.contentOffset.x;
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,10 +56,7 @@ export default function App() {
         pagingEnabled
         horizontal
         showsHorizontalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: true }
-        )}
+        onScroll={scrollXHandler}
         scrollEventThrottle={16}
       />
       <Image

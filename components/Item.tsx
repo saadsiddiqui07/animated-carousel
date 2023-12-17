@@ -1,6 +1,11 @@
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React from "react";
 import { height, width } from "../contants";
+import Animated, {
+  SharedValue,
+  interpolate,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
 interface Props {
   type: string;
@@ -12,7 +17,7 @@ interface Props {
 }
 
 interface ItemProps extends Props {
-  scrollX: Animated.Value;
+  scrollX: SharedValue<number>;
   index: number;
 }
 
@@ -29,47 +34,54 @@ const Item = ({
     index * width,
     (index + 0.3) * width,
   ];
-  const scale = scrollX.interpolate({
-    inputRange,
-    outputRange: [0, 1, 0],
+
+  const animatedImageStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: interpolate(scrollX.value, inputRange, [0, 1, 0]) }],
+    };
   });
 
-  const translateXHeading = scrollX.interpolate({
-    inputRange,
-    outputRange: [width * 0.2, 0, -width * 0.2],
+  const animatedHeadingStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: interpolate(scrollX.value, inputRange, [
+            width * 0.2,
+            0,
+            -width * 0.2,
+          ]),
+        },
+      ],
+      opacity: interpolate(scrollX.value, inputOpacityRange, [0, 1, 0]),
+    };
   });
 
-  const translateXDescription = scrollX.interpolate({
-    inputRange,
-    outputRange: [width * 0.7, 0, -width * 0.7],
+  const animatedDescriptionStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: interpolate(scrollX.value, inputRange, [
+            width * 0.7,
+            0,
+            -width * 0.7,
+          ]),
+        },
+      ],
+      opacity: interpolate(scrollX.value, inputOpacityRange, [0, 1, 0]),
+    };
   });
 
-  const opacity = scrollX.interpolate({
-    inputRange: inputOpacityRange,
-    outputRange: [0, 1, 0],
-  });
   return (
     <View style={styles.itemStyle}>
       <Animated.Image
         source={imageUri}
-        style={[styles.imageStyle, { transform: [{ scale }] }]}
+        style={[styles.imageStyle, animatedImageStyle]}
       />
       <View style={styles.textContainer}>
-        <Animated.Text
-          style={[
-            styles.heading,
-
-            { opacity, transform: [{ translateX: translateXHeading }] },
-          ]}
-        >
+        <Animated.Text style={[styles.heading, animatedHeadingStyle]}>
           {heading}
         </Animated.Text>
-        <Animated.Text
-          style={[
-            styles.description,
-            { opacity, transform: [{ translateX: translateXDescription }] },
-          ]}
-        >
+        <Animated.Text style={[styles.description, animatedDescriptionStyle]}>
           {description}
         </Animated.Text>
       </View>

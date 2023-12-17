@@ -1,15 +1,31 @@
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { DOT_SIZE, width } from "../contants";
 import data from "../data";
+import Animated, {
+  Extrapolate,
+  SharedValue,
+  interpolate,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
-const Pagination = ({ scrollX }: { scrollX: Animated.Value }) => {
+const Pagination = ({ scrollX }: { scrollX: SharedValue<number> }) => {
   const inputRange = [-width, 0, width];
-  // move the circle as per the width of the dotsie
-  const translateX = scrollX.interpolate({
-    inputRange,
-    outputRange: [-DOT_SIZE, 0, DOT_SIZE],
+
+  const animatedViewStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: interpolate(scrollX.value, inputRange, [
+            -DOT_SIZE,
+            0,
+            DOT_SIZE,
+          ]),
+        },
+      ],
+    };
   });
+
   return (
     <View style={styles.pagination}>
       <Animated.View
@@ -17,8 +33,8 @@ const Pagination = ({ scrollX }: { scrollX: Animated.Value }) => {
           styles.paginationIndicator,
           {
             position: "absolute",
-            transform: [{ translateX: translateX }],
           },
+          animatedViewStyle,
         ]}
       />
       {data.map((item, index) => {
@@ -27,17 +43,24 @@ const Pagination = ({ scrollX }: { scrollX: Animated.Value }) => {
           index * width,
           (index + 0.5) * width,
         ];
-        const scale = scrollX.interpolate({
-          inputRange,
-          outputRange: [1, 1.2, 1],
-          extrapolate: "clamp",
+
+        const animatedDotStyle = useAnimatedStyle(() => {
+          return {
+            opacity: interpolate(
+              scrollX.value,
+              inputRange,
+              [1, 1.2, 1],
+              Extrapolate.CLAMP
+            ),
+          };
         });
         return (
           <View key={item.key} style={styles.paginationDotContainer}>
             <Animated.View
               style={[
                 styles.paginationDot,
-                { backgroundColor: item.color, transform: [{ scale }] },
+                { backgroundColor: item.color },
+                animatedDotStyle,
               ]}
             />
           </View>
