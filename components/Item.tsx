@@ -1,11 +1,14 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { height, width } from "../contants";
 import Animated, {
+  SharedTransition,
   SharedValue,
   interpolate,
   useAnimatedStyle,
+  withSpring,
 } from "react-native-reanimated";
+import { SharedElement } from "react-navigation-shared-element";
 
 interface Props {
   type: string;
@@ -14,20 +17,27 @@ interface Props {
   description: string;
   key: string;
   color: string;
+  colorName: string;
 }
 
-interface ItemProps extends Props {
+interface ItemProps {
+  item: Props;
   scrollX: SharedValue<number>;
   index: number;
+  navigation: any;
 }
 
-const Item = ({
-  imageUri,
-  heading,
-  description,
-  scrollX,
-  index,
-}: ItemProps) => {
+const customTransition = SharedTransition.custom((values) => {
+  "worklet";
+  return {
+    height: withSpring(values.targetHeight),
+    width: withSpring(values.targetWidth),
+    originX: withSpring(values.targetOriginX),
+    originY: withSpring(values.targetOriginY),
+  };
+});
+
+const Item = ({ item, scrollX, index, navigation }: ItemProps) => {
   const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
   const inputOpacityRange = [
     (index - 0.3) * width,
@@ -72,20 +82,33 @@ const Item = ({
   });
 
   return (
-    <View style={styles.itemStyle}>
+    <TouchableOpacity
+      style={styles.itemStyle}
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate("Details", { item })}
+    >
+      {/* <SharedElement id={`item-${item.key}-image`} style={[styles.imageStyle]}>
+        <Animated.Image
+          source={item.imageUri}
+          style={[styles.imageStyle, animatedImageStyle]}
+          
+        />
+      </SharedElement> */}
       <Animated.Image
-        source={imageUri}
+        source={item.imageUri}
         style={[styles.imageStyle, animatedImageStyle]}
+        sharedTransitionTag={`image-${item.key}`}
+        sharedTransitionStyle={customTransition} // add this to both e
       />
       <View style={styles.textContainer}>
         <Animated.Text style={[styles.heading, animatedHeadingStyle]}>
-          {heading}
+          {item.heading}
         </Animated.Text>
         <Animated.Text style={[styles.description, animatedDescriptionStyle]}>
-          {description}
+          {item.description}
         </Animated.Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

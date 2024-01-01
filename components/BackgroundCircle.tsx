@@ -4,15 +4,27 @@ import data from "../data";
 import { CIRCLE_SIZE, width } from "../contants";
 import Animated, {
   Extrapolation,
+  SharedTransition,
   SharedValue,
   interpolate,
   useAnimatedStyle,
+  withSpring,
 } from "react-native-reanimated";
+
+const customTransition = SharedTransition.custom((values) => {
+  "worklet";
+  return {
+    height: withSpring(values.targetHeight),
+    width: withSpring(values.targetWidth),
+    originX: withSpring(values.targetOriginX),
+    originY: withSpring(values.targetOriginY),
+  };
+});
 
 const BackgroundCircle = ({ scrollX }: { scrollX: SharedValue<number> }) => {
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.circleContainer]}>
-      {data.map(({ color }, index) => {
+      {data.map((item, index) => {
         const inputRange = [
           (index - 0.5) * width,
           index * width,
@@ -40,9 +52,11 @@ const BackgroundCircle = ({ scrollX }: { scrollX: SharedValue<number> }) => {
             key={index}
             style={[
               styles.circle,
-              { backgroundColor: color },
+              { backgroundColor: item.color },
               animatedCircleStyle,
             ]}
+            sharedTransitionTag="circle"
+            sharedTransitionStyle={customTransition}
           />
         );
       })}

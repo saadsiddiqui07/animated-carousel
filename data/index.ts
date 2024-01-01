@@ -6,6 +6,7 @@ export default [
     description: "Four on-trend colorways to seamlessly suit your style.",
     key: "first",
     color: "#9dcdfa",
+    colorName: "Blue",
   },
   {
     type: "Pampas",
@@ -14,6 +15,7 @@ export default [
     description: "A bold statement tuned to perfection.",
     key: "second",
     color: "#db9efa",
+    colorName: "Pink",
   },
   {
     type: "Humlan P",
@@ -23,6 +25,7 @@ export default [
       "An Urbanears classic! Listen-all-day fit. Striking the perfect balance of effortless technology",
     key: "third",
     color: "#999",
+    colorName: "Grey",
   },
   {
     type: "Humlan B",
@@ -32,5 +35,6 @@ export default [
       "The “Plattan” in Plattan headphones is Swedish for “the slab.”",
     key: "fourth",
     color: "#a1e3a1",
+    colorName: "Green",
   },
 ];
